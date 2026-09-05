@@ -318,7 +318,7 @@
     // -----------------------------------------------------------------
     // PENTING: Masukkan URL Web App Google Apps Script Anda di sini
     // -----------------------------------------------------------------
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxy4XvqgKtVrWEOEZegP09gi0AFemDoSELA8AJZATLEh5TMIZ1iJKorFiwZBJsnCyRcJw/exec"; 
+    const APPS_SCRIPT_URL = "MASUKKAN_URL_WEB_APP_ANDA_DISINI"; 
 
     // --- STATE UTAMA ---
     let dataTahun = [];
@@ -367,8 +367,13 @@
           dataUsulan = hasil.data.usulan || [];
           dataTahun = hasil.data.setting || [];
           
-          renderDropdownTahun();
-          renderDropdownEntitas();
+          // TAMBAHAN: Deteksi otomatis jika Google Sheets masih kosong
+          if (dataUser.length === 0) {
+            buatDataUserBawaan();
+          } else {
+            renderDropdownTahun();
+            renderDropdownEntitas();
+          }
         } else {
           showToast("Gagal memuat: " + hasil.message, "error");
         }
@@ -377,6 +382,37 @@
         jalankanModeLokal();
       }
       showLoading(false);
+    }
+
+    function buatDataUserBawaan() {
+      const ENTITAS_AWAL = [
+        "Lingkungan Ancak", "Lingkungan Menésa", "Lingkungan Peminge", "Lingkungan Sawangan",
+        "Lingkungan Térora", "Lingkungan Celuk", "Lingkungan Peken", "Lingkungan Penyarikan",
+        "Lingkungan Pandé", "Lingkungan Balé Kembar", "Lingkungan Bualu", "Lingkungan Mumbul",
+        "Lingkungan Bualu Indah", "Lingkungan Wisma Nusa Permai", "Lingkungan Puri Nusa Dua", "Lingkungan Permata Nusa Dua",
+        "Desa Adat Bualu", "Desa Adat Kampial", "Desa Adat Peminge",
+        "SDN 1 Benoa", "SDN 2 Benoa", "SDN 3 Benoa", "SDN 4 Benoa", "SDN 5 Benoa",
+        "SDN 6 Benoa", "SDN 7 Benoa", "SDN 8 Benoa", "SDN 9 Benoa", "SMPN 4 Kuta Selatan"
+      ];
+      
+      dataUser = [
+        { id: "S-1", nama: "admin", role: "ADMIN", status: true, auth: "admin123" },
+        { id: "S-2", nama: "operator", role: "OPERATOR", status: true, auth: "operator123" }
+      ];
+      
+      ENTITAS_AWAL.forEach(e => { 
+        dataUser.push({ id: 'U-'+Math.floor(Math.random()*10000), nama: e, role: "USER", status: true, auth: "123456" }); 
+      });
+
+      dataTahun = ["2026", "2027"];
+
+      // Kirim perintah sinkronisasi masal ke Google Sheets
+      syncTableToServer('SYNC_USERS', dataUser);
+      syncTableToServer('SYNC_SETTING', dataTahun);
+      
+      renderDropdownTahun();
+      renderDropdownEntitas();
+      showToast("Database perdana berhasil disiapkan. 29 Entitas telah direkam!", "success");
     }
 
     function syncTableToServer(actionStr, payloadData) {
