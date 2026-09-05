@@ -416,13 +416,26 @@
     }
 
     function syncTableToServer(actionStr, payloadData) {
-      if (APPS_SCRIPT_URL === "MASUKKAN_URL_WEB_APP_ANDA_DISINI" || APPS_SCRIPT_URL === "") return; 
+      if (APPS_SCRIPT_URL === "MASUKKAN_URL_WEB_APP_ANDA_DISINI") return; 
+      
       fetch(APPS_SCRIPT_URL, {
         method: 'POST',
+        redirect: 'follow',
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ action: actionStr, data: payloadData })
-      }).catch(e => console.error("Sync Error:", e));
+      })
+      .then(response => response.json())
+      .then(hasil => {
+        if (hasil.status === 'error') {
+          showToast('Gagal Tersimpan: ' + hasil.message, 'error');
+        }
+      })
+      .catch(e => {
+        console.error("Sync Error:", e);
+        showToast('Koneksi terputus ke Google Sheets.', 'error');
+      });
     }
-
+    
     function jalankanModeLokal() {
       dataTahun = ["2026", "2027"];
       dataUser = [
