@@ -473,11 +473,11 @@
         if(mode === 'USER') {
           const entity = document.getElementById('userEntitySelect').value;
           const pin = document.getElementById('userPinInput').value;
-          matched = dataUser.find(u => u.nama === entity && u.auth === pin && u.role === 'USER');
+          matched = dataUser.find(u => String(u.nama) === String(entity) && String(u.auth) === String(pin) && u.role === 'USER');
         } else {
           const user = document.getElementById('staffUsername').value.trim();
           const pass = document.getElementById('staffPassword').value;
-          matched = dataUser.find(u => u.nama === user && u.auth === pass && (u.role === 'ADMIN' || u.role === 'OPERATOR'));
+          matched = dataUser.find(u => String(u.nama) === String(user) && String(u.auth) === String(pass) && (u.role === 'ADMIN' || u.role === 'OPERATOR'));
         }
 
         if(!matched) { showLoading(false); return showToast('Login Gagal. Kredensial tidak valid.', 'error'); }
